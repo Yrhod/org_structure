@@ -18,9 +18,15 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "types": ["jest", "node"]  // Добавлено для поддержки Jest
   },
   "include": [
-    "src"
+    "src",
+    "src/**/*.test.ts",         // Убедимся, что тестовые файлы тоже включены
+    "src/**/*.test.tsx"
+  ],
+  "exclude": [
+    "node_modules"              // Исключаем node_modules
   ]
 }
