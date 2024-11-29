@@ -1,19 +1,23 @@
 package config
 
 import (
+	"database/sql"
 	"fmt"
-	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 )
 
-var DB *sqlx.DB
+var DB *sql.DB
 
-func ConnectDB() {
-	dsn := "host=localhost user=postgres password=yourpassword dbname=org_chart sslmode=disable"
+func InitDB() {
+	connStr := "host=localhost port=5432 user=postgres password=admin dbname=company_structure sslmode=disable"
 	var err error
-	DB, err = sqlx.Connect("postgres", dsn)
+	DB, err = sql.Open("postgres", connStr)
 	if err != nil {
-		panic(fmt.Sprintf("Failed to connect to DB: %v", err))
+		panic(fmt.Sprintf("Failed to connect to database: %v", err))
 	}
-	fmt.Println("Connected to DB")
+
+	if err = DB.Ping(); err != nil {
+		panic(fmt.Sprintf("Database not reachable: %v", err))
+	}
+	fmt.Println("Database connected successfully")
 }
