@@ -61,7 +61,7 @@ const SearchBar: React.FC = () => {
             boxSizing: 'border-box',
           }}
           onFocus={(e) =>
-            (e.currentTarget.parentElement!.style.borderColor = 'blue')
+            (e.currentTarget.parentElement!.style.borderColor = 'black')
           }
           onBlur={(e) =>
             (e.currentTarget.parentElement!.style.borderColor = '#ddd')

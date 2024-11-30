@@ -20,7 +20,8 @@ const ProfileCard: React.FC<CardProps> = ({ photoUrl, fullName, position, compan
         boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
         maxWidth: '400px',
         backgroundColor: '#fff',
-        marginBottom: '0px',
+        marginBottom: '5px',
+        marginLeft: '9px',
         transition: 'transform 0.3s ease, box-shadow 0.3s ease', // Плавная анимация
       }}
       onMouseEnter={(e) => {

@@ -25,28 +25,25 @@ code {
     monospace;
 }
 
-/* Кастомизация полосы прокрутки */
-
-::-webkit-scrollbar {
-  width: 10px; /* Ширина полосы прокрутки */
-}
-
-::-webkit-scrollbar-thumb {
-  background-color: rgb(255, 255, 255); /* Цвет ползунка */
-  border-radius: 8px; /* Скругление углов ползунка */
-}
-
-
-
-::-webkit-scrollbar-track {
-  background-color: rgba(0, 0, 0, 0.05); /* Цвет фона полосы прокрутки */
-  border-radius: 8px; /* Скругление углов области прокрутки */
-}
-
 
 .search-input::placeholder {
   font-family: 'MTSCompact-Medium', sans-serif; /* Измените на нужный шрифт */
   color: gray; /* Цвет плейсхолдера */
   font-size: 16px; /* Размер шрифта */
+}
+
+::-webkit-scrollbar {
+  width: 10px; /* Ширина полосы прокрутки */
+  background-color: transparent; /* Сделаем полосу прокрутки прозрачной */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: transparent; /* Ползунок прозрачный */
+  border-radius: 8px; /* Скругление углов ползунка */
+}
+
+::-webkit-scrollbar-track {
+  background-color: transparent; /* Прозрачный фон области прокрутки */
+  border-radius: 8px; /* Скругление углов области прокрутки */
 }
 
