@@ -46,14 +46,17 @@ func GetEmployeeHandler(c *gin.Context) {
 
 func SearchEmployeesHandler(c *gin.Context) {
 	// Получаем фильтры из query-параметров
-	position := c.DefaultQuery("position", "")
-	departmentID := c.DefaultQuery("department_id", "")
-	roleID := c.DefaultQuery("role_id", "")
-	projectID := c.DefaultQuery("project_id", "")
-	city := c.DefaultQuery("city", "")
-	email := c.DefaultQuery("email", "")
+	filterType := c.DefaultQuery("filter_type", "")
+	filterValue := c.DefaultQuery("filter_value", "")
+
+	// Проверка обязательных параметров
+	if filterType == "" || filterValue == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "filter_type and filter_value are required"})
+		return
+	}
+
 	// Вызов сервиса для поиска сотрудников
-	employees, err := services.SearchEmployees(position, departmentID, roleID, projectID, city, email)
+	employees, err := services.SearchEmployees(filterType, filterValue)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

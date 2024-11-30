@@ -14,12 +14,12 @@ func SearchHierarchy(employeeID int) (*models.Employee, []*models.Employee, erro
 	var colleagues []*models.Employee
 
 	// Получаем данные о сотруднике
-	queryEmployee := `SELECT id, first_name, last_name, position, department_id, role_id, project_id, manager_id, city, email, calendar_link 
+	queryEmployee := `SELECT id, first_name, last_name, position, department_id, role_id, project_id, manager_id, city, phone, email, calendar_link 
 					  FROM employees WHERE id = $1`
 	err := config.DB.QueryRow(queryEmployee, employeeID).Scan(
 		&employee.ID, &employee.FirstName, &employee.LastName, &employee.Position,
 		&employee.DepartmentID, &employee.RoleID, &employee.ProjectID, &employee.ManagerID,
-		&employee.City, &employee.Email, &employee.CalendarLink,
+		&employee.City, &employee.Phone, &employee.Email, &employee.CalendarLink,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -37,7 +37,7 @@ func SearchHierarchy(employeeID int) (*models.Employee, []*models.Employee, erro
 	}
 
 	// Получаем данные о коллегах
-	queryColleagues := `SELECT id, first_name, last_name, position, city, email 
+	queryColleagues := `SELECT id, first_name, last_name, position, city, phone, email 
 						FROM employees 
 						WHERE department_id = $1 AND role_id = $2 AND project_id = $3 AND id != $4`
 	rows, err := config.DB.Query(queryColleagues, employee.DepartmentID, employee.RoleID, employee.ProjectID, employee.ID)
@@ -48,7 +48,7 @@ func SearchHierarchy(employeeID int) (*models.Employee, []*models.Employee, erro
 
 	for rows.Next() {
 		var colleague models.Employee
-		err := rows.Scan(&colleague.ID, &colleague.FirstName, &colleague.LastName, &colleague.Position, &colleague.City, &colleague.Email)
+		err := rows.Scan(&colleague.ID, &colleague.FirstName, &colleague.LastName, &colleague.Position, &colleague.City, &colleague.Phone, &colleague.Email)
 		if err != nil {
 			return nil, nil, fmt.Errorf("failed to parse colleague data: %v", err)
 		}
@@ -60,12 +60,12 @@ func SearchHierarchy(employeeID int) (*models.Employee, []*models.Employee, erro
 
 // GetManager получает данные о менеджере.
 func GetManager(managerID int) (*models.Employee, error) {
-	query := `SELECT id, first_name, last_name, position, department_id, role_id, project_id, city, email, calendar_link 
+	query := `SELECT id, first_name, last_name, position, department_id, role_id, project_id, city, phone, email, calendar_link 
 			  FROM employees WHERE id = $1`
 	var manager models.Employee
 	err := config.DB.QueryRow(query, managerID).Scan(
 		&manager.ID, &manager.FirstName, &manager.LastName, &manager.Position,
-		&manager.DepartmentID, &manager.RoleID, &manager.ProjectID, &manager.City, &manager.Email, &manager.CalendarLink,
+		&manager.DepartmentID, &manager.RoleID, &manager.ProjectID, &manager.City, &manager.Phone, &manager.Email, &manager.CalendarLink,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
