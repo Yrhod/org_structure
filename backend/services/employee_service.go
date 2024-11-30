@@ -28,30 +28,58 @@ func SearchEmployees(filterType, filterValue string) ([]models.Employee, error) 
 	case "department":
 		// Запрос для поиска сотрудников по имени департамента
 		query = `SELECT e.id, e.first_name, e.last_name, e.position, e.manager_id, e.department_id, 
-                         e.role_id, e.project_id, e.city, e.phone, e.email, e.calendar_link
+                         e.role_id, e.project_id, e.city, e.phone, e.email, e.calendar_link,
+                         d.name AS department_name, r.name AS role_name, p.name AS project_name
                   FROM employees e
                   JOIN departments d ON e.department_id = d.id
+                  JOIN roles r ON e.role_id = r.id
+                  JOIN projects p ON e.project_id = p.id
                   WHERE d.name = $1`
 		argCount++
 		args = append(args, filterValue)
 	case "role":
-		query = `SELECT id FROM roles WHERE name = $1`
+		query = `SELECT e.id, e.first_name, e.last_name, e.position, e.manager_id, e.department_id, 
+                         e.role_id, e.project_id, e.city, e.phone, e.email, e.calendar_link,
+                         d.name AS department_name, r.name AS role_name, p.name AS project_name
+                  FROM employees e
+                  JOIN departments d ON e.department_id = d.id
+                  JOIN roles r ON e.role_id = r.id
+                  JOIN projects p ON e.project_id = p.id
+                  WHERE r.name = $1`
 		argCount++
 		args = append(args, filterValue)
 	case "project":
-		query = `SELECT id FROM projects WHERE name = $1`
+		query = `SELECT e.id, e.first_name, e.last_name, e.position, e.manager_id, e.department_id, 
+                         e.role_id, e.project_id, e.city, e.phone, e.email, e.calendar_link,
+                         d.name AS department_name, r.name AS role_name, p.name AS project_name
+                  FROM employees e
+                  JOIN departments d ON e.department_id = d.id
+                  JOIN roles r ON e.role_id = r.id
+                  JOIN projects p ON e.project_id = p.id
+                  WHERE p.name = $1`
 		argCount++
 		args = append(args, filterValue)
 	case "position", "city", "phone", "email":
 		// Простые фильтры без преобразования
-		query = fmt.Sprintf(`SELECT id, first_name, last_name, position, manager_id, department_id, role_id, project_id, city, phone, email, calendar_link
-                             FROM employees WHERE %s = $1`, filterType)
+		query = fmt.Sprintf(`SELECT e.id, e.first_name, e.last_name, e.position, e.manager_id, e.department_id, 
+                             e.role_id, e.project_id, e.city, e.phone, e.email, e.calendar_link,
+                             d.name AS department_name, r.name AS role_name, p.name AS project_name
+                             FROM employees e
+                             JOIN departments d ON e.department_id = d.id
+                             JOIN roles r ON e.role_id = r.id
+                             JOIN projects p ON e.project_id = p.id
+                             WHERE %s = $1`, filterType)
 		argCount++
 		args = append(args, filterValue)
 	case "name":
-		// Фильтр по имени (имя + фамилия)
-		query = `SELECT id, first_name, last_name, position, manager_id, department_id, role_id, project_id, city, phone, email, calendar_link
-                 FROM employees WHERE CONCAT(first_name, ' ', last_name) ILIKE $1`
+		query = `SELECT e.id, e.first_name, e.last_name, e.position, e.manager_id, e.department_id, 
+                         e.role_id, e.project_id, e.city, e.phone, e.email, e.calendar_link,
+                         d.name AS department_name, r.name AS role_name, p.name AS project_name
+                 FROM employees e
+                 JOIN departments d ON e.department_id = d.id
+                 JOIN roles r ON e.role_id = r.id
+                 JOIN projects p ON e.project_id = p.id
+                 WHERE CONCAT(e.first_name, ' ', e.last_name) ILIKE $1`
 		argCount++
 		args = append(args, "%"+filterValue+"%")
 	default:
@@ -82,6 +110,9 @@ func SearchEmployees(filterType, filterValue string) ([]models.Employee, error) 
 			&employee.Phone,
 			&employee.Email,
 			&employee.CalendarLink,
+			&employee.DepartmentName,
+			&employee.RoleName,
+			&employee.ProjectName,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan employee: %v", err)
