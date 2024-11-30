@@ -36,7 +36,7 @@ func Migrate() {
             last_name VARCHAR(50) NOT NULL,
             position VARCHAR(100) NOT NULL,
             department_id INT REFERENCES departments(id),
-            role_idц INT REFERENCES roles(id),
+            role_id INT REFERENCES roles(id),
             project_id INT REFERENCES projects(id),
             manager_id INT REFERENCES employees(id),
             city VARCHAR(100),

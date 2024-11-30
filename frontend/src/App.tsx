@@ -1,7 +1,7 @@
-import React from "react";
-import DepartmentStructure from "./components/DepartmentStructure";
-import ProfileCardList from "./components/ProfileCardList";
-import SearchBar from "./components/SearchBar";
+import React from 'react';
+import DepartmentStructure from './components/DepartmentStructure';
+import ProfileCardList from './components/ProfileCardList';
+import SearchBar from './components/SearchBar';
 
 const departmentData = {
   id: 1,
@@ -48,9 +48,9 @@ const App: React.FC = () => {
       }}
     >
       {/* Левая колонка*/}
-      <div style={{ padding: "20px" }}>
-        <SearchBar />
-      </div>
+      <div style={{ padding: '20px' }}>
+          <SearchBar />
+    </div>
 
       {/* Центральная колонка */}
       <div

@@ -87,18 +87,13 @@ const ProfileCardList: React.FC = () => {
 
   return (
     <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column', // Или 'row' для горизонтальной прокрутки
-        gap: '16px',
-        overflowY: 'auto', // Вертикальная прокрутка
-        maxHeight: '650px', // Ограничиваем высоту контейнера
-        padding: '16px',
-        border: '1px solid #ddd',
-        borderRadius: '8px',
-        backgroundColor: 'rgb(237, 28, 36)',
-        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-      }}
+    style={{
+      maxHeight: '700px', // Максимальная высота для списка
+      overflowY: 'auto',  // Включаем вертикальную прокрутку
+      padding: '5px 0', // Паддинг для внутреннего отступа
+      scrollbarWidth: 'none', // Для Firefox
+      msOverflowStyle: 'none', // Для Internet Explorer
+    }}
     >
       {/* Отображаем ProfileCardLider первым */}
       <ProfileCardLider
