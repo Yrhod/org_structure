@@ -47,10 +47,11 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onClose }) => {
   return (
     <Card sx={{
         width: '100%', // Занимает 100% ширины модального окна
-        maxWidth: '600px', // Максимальная ширина
+        maxWidth: '400px', // Максимальная ширина
         margin: '0',
         overflow: 'hidden', 
-        padding: '20px'
+        padding: '20px',
+         // Устанавливаем левое смещение
         }}>
       {/* Кнопка закрытия */}
       <IconButton 

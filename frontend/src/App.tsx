@@ -63,7 +63,7 @@ const departmentData = {
 
 const App: React.FC = () => {
   const [openModal, setOpenModal] = useState(false); // Состояние для управления модальным окном
-  const [position, setPosition] = useState({ x: 0, y: 0 }); // Состояние для отслеживания позиции окна
+  const [position, setPosition] = useState({ x:20 , y: 130 }); // Состояние для отслеживания позиции окна
   const [dragging, setDragging] = useState(false); // Состояние для отслеживания начала перетаскивания
   const [startPosition, setStartPosition] = useState({ x: 0, y: 0 }); // Начальная позиция перетаскивания
 
@@ -124,7 +124,7 @@ const App: React.FC = () => {
               left: `${position.x}px`,
               cursor: 'move',
               width: '100%', // Занимает 100% ширины модального окна
-              maxWidth: '500px', // Максимальная ширина
+              maxWidth: '400px', // Максимальная ширина
               borderRadius: '16px', // Скругление углов
               boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.2)', // Тень
               margin: '0',
