@@ -26,7 +26,12 @@ func SearchEmployees(filterType, filterValue string) ([]models.Employee, error) 
 	// Определяем SQL-запрос в зависимости от типа фильтра
 	switch filterType {
 	case "department":
-		query = `SELECT id FROM departments WHERE name = $1`
+		// Запрос для поиска сотрудников по имени департамента
+		query = `SELECT e.id, e.first_name, e.last_name, e.position, e.manager_id, e.department_id, 
+                         e.role_id, e.project_id, e.city, e.phone, e.email, e.calendar_link
+                  FROM employees e
+                  JOIN departments d ON e.department_id = d.id
+                  WHERE d.name = $1`
 		argCount++
 		args = append(args, filterValue)
 	case "role":
@@ -64,8 +69,20 @@ func SearchEmployees(filterType, filterValue string) ([]models.Employee, error) 
 	var employees []models.Employee
 	for rows.Next() {
 		var employee models.Employee
-		err := rows.Scan(&employee.ID, &employee.FirstName, &employee.LastName, &employee.Position, &employee.ManagerID,
-			&employee.DepartmentID, &employee.RoleID, &employee.ProjectID, &employee.City, &employee.Phone, &employee.Email, &employee.CalendarLink)
+		err := rows.Scan(
+			&employee.ID,
+			&employee.FirstName,
+			&employee.LastName,
+			&employee.Position,
+			&employee.ManagerID,
+			&employee.DepartmentID,
+			&employee.RoleID,
+			&employee.ProjectID,
+			&employee.City,
+			&employee.Phone,
+			&employee.Email,
+			&employee.CalendarLink,
+		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan employee: %v", err)
 		}
@@ -76,12 +93,25 @@ func SearchEmployees(filterType, filterValue string) ([]models.Employee, error) 
 }
 
 func GetEmployee(id int) (models.Employee, error) {
-	query := `SELECT id, first_name, last_name, position, manager_id, department_id, role_id, project_id, city, phone, email, calendar_link
-              FROM employees WHERE id = $1`
+	query := `
+        SELECT 
+            e.id, e.first_name, e.last_name, e.position, e.manager_id, e.department_id, 
+            d.name AS department_name, e.role_id, r.name AS role_name, 
+            e.project_id, p.name AS project_name, 
+            e.city, e.phone, e.email, e.calendar_link
+        FROM employees e
+        LEFT JOIN departments d ON e.department_id = d.id
+        LEFT JOIN roles r ON e.role_id = r.id
+        LEFT JOIN projects p ON e.project_id = p.id
+        WHERE e.id = $1
+    `
+
 	var employee models.Employee
 	err := config.DB.QueryRow(query, id).Scan(
-		&employee.ID, &employee.FirstName, &employee.LastName, &employee.Position, &employee.ManagerID,
-		&employee.DepartmentID, &employee.RoleID, &employee.ProjectID, &employee.City, &employee.Phone, &employee.Email, &employee.CalendarLink,
+		&employee.ID, &employee.FirstName, &employee.LastName, &employee.Position,
+		&employee.ManagerID, &employee.DepartmentID, &employee.DepartmentName,
+		&employee.RoleID, &employee.RoleName, &employee.ProjectID, &employee.ProjectName,
+		&employee.City, &employee.Phone, &employee.Email, &employee.CalendarLink,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -89,22 +119,6 @@ func GetEmployee(id int) (models.Employee, error) {
 		}
 		return models.Employee{}, fmt.Errorf("failed to get employee: %v", err)
 	}
-
-	// Если есть ManagerID, получаем данные менеджера
-	if employee.ManagerID != nil {
-		manager, err := GetEmployee(*employee.ManagerID)
-		if err != nil {
-			return models.Employee{}, fmt.Errorf("failed to get manager for employee: %v", err)
-		}
-		employee.Manager = &manager
-	}
-
-	// Получаем список подчиненных
-	subordinates, err := GetSubordinates(employee.ID)
-	if err != nil {
-		return models.Employee{}, fmt.Errorf("failed to get subordinates: %v", err)
-	}
-	employee.Subordinates = subordinates
 
 	return employee, nil
 }

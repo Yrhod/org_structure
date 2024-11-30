@@ -8,10 +8,11 @@ import (
 )
 
 // SearchHierarchy находит менеджера и коллег сотрудника.
-func SearchHierarchy(employeeID int) (*models.Employee, []*models.Employee, error) {
+func SearchHierarchy(employeeID int) (*models.Employee, []*models.Employee, []*models.Employee, error) {
 	var employee models.Employee
 	var manager *models.Employee
 	var colleagues []*models.Employee
+	var subordinates []*models.Employee
 
 	// Получаем данные о сотруднике
 	queryEmployee := `SELECT id, first_name, last_name, position, department_id, role_id, project_id, manager_id, city, phone, email, calendar_link 
@@ -23,26 +24,44 @@ func SearchHierarchy(employeeID int) (*models.Employee, []*models.Employee, erro
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, nil, fmt.Errorf("employee not found")
+			return nil, nil, nil, fmt.Errorf("employee not found")
 		}
-		return nil, nil, fmt.Errorf("failed to get employee: %v", err)
+		return nil, nil, nil, fmt.Errorf("failed to get employee: %v", err)
 	}
 
 	// Получаем данные о менеджере, если указан manager_id
 	if employee.ManagerID != nil {
 		manager, err = GetManager(*employee.ManagerID)
 		if err != nil {
-			return nil, nil, fmt.Errorf("failed to get manager: %v", err)
+			return nil, nil, nil, fmt.Errorf("failed to get manager: %v", err)
 		}
+	}
+
+	// Получаем данные о подчиненных сотрудниках
+	querySubordinates := `SELECT id, first_name, last_name, position, city, phone, email 
+						  FROM employees WHERE manager_id = $1`
+	rows, err := config.DB.Query(querySubordinates, employee.ID)
+	if err != nil {
+		return nil, nil, nil, fmt.Errorf("failed to get subordinates: %v", err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var subordinate models.Employee
+		err := rows.Scan(&subordinate.ID, &subordinate.FirstName, &subordinate.LastName, &subordinate.Position, &subordinate.City, &subordinate.Phone, &subordinate.Email)
+		if err != nil {
+			return nil, nil, nil, fmt.Errorf("failed to parse subordinate data: %v", err)
+		}
+		subordinates = append(subordinates, &subordinate)
 	}
 
 	// Получаем данные о коллегах
 	queryColleagues := `SELECT id, first_name, last_name, position, city, phone, email 
 						FROM employees 
 						WHERE department_id = $1 AND role_id = $2 AND project_id = $3 AND id != $4`
-	rows, err := config.DB.Query(queryColleagues, employee.DepartmentID, employee.RoleID, employee.ProjectID, employee.ID)
+	rows, err = config.DB.Query(queryColleagues, employee.DepartmentID, employee.RoleID, employee.ProjectID, employee.ID)
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed to get colleagues: %v", err)
+		return nil, nil, nil, fmt.Errorf("failed to get colleagues: %v", err)
 	}
 	defer rows.Close()
 
@@ -50,12 +69,15 @@ func SearchHierarchy(employeeID int) (*models.Employee, []*models.Employee, erro
 		var colleague models.Employee
 		err := rows.Scan(&colleague.ID, &colleague.FirstName, &colleague.LastName, &colleague.Position, &colleague.City, &colleague.Phone, &colleague.Email)
 		if err != nil {
-			return nil, nil, fmt.Errorf("failed to parse colleague data: %v", err)
+			return nil, nil, nil, fmt.Errorf("failed to parse colleague data: %v", err)
 		}
 		colleagues = append(colleagues, &colleague)
 	}
 
-	return manager, colleagues, nil
+	// Добавляем подчиненных к сотруднику
+	employee.Subordinates = subordinates
+
+	return manager, colleagues, subordinates, nil
 }
 
 // GetManager получает данные о менеджере.

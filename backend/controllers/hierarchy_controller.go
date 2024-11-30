@@ -17,15 +17,16 @@ func GetEmployeeHierarchyHandler(c *gin.Context) {
 	}
 
 	// Вызов сервиса для поиска
-	manager, colleagues, err := services.SearchHierarchy(employeeID)
+	manager, colleagues, subordinates, err := services.SearchHierarchy(employeeID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Формирование ответа
+	// Формирование ответа с подчиненными
 	c.JSON(http.StatusOK, gin.H{
-		"manager":    manager,
-		"colleagues": colleagues,
+		"manager":      manager,
+		"colleagues":   colleagues,
+		"subordinates": subordinates, // добавляем подчиненных
 	})
 }

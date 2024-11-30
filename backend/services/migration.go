@@ -46,6 +46,18 @@ func Migrate() {
             CONSTRAINT fk_manager FOREIGN KEY(manager_id) REFERENCES employees(id) ON DELETE SET NULL
         );
 
+		DO $$
+        BEGIN
+            -- Добавляем столбец phone, если его нет
+            IF NOT EXISTS (
+                SELECT 1
+                FROM information_schema.columns
+                WHERE table_name='employees' AND column_name='phone'
+            ) THEN
+                ALTER TABLE employees ADD COLUMN phone VARCHAR(20);
+            END IF;
+        END $$;
+
         -- Индексы для быстрого поиска сотрудников по департаменту, роли, проекту и менеджеру
         CREATE INDEX IF NOT EXISTS idx_employee_department ON employees(department_id);
         CREATE INDEX IF NOT EXISTS idx_employee_role ON employees(role_id);
