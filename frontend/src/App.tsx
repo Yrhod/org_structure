@@ -1,14 +1,18 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import HomePage from './pages/HomePage';
+import React from 'react';
+import ProfileCardList from './pages/ProfileCardList';
 
-function App() {
+const App: React.FC = () => {
   return (
-      <Router>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-        </Routes>
-      </Router>
+    <div style={{ display: 'flex' }}>
+      {/* Это может быть дополнительная секция справа */}
+      <div style={{ width: '67%', padding: '20px' }}>
+        {/* Контент слева (например, описание, другая информация) */}
+      </div>
+      <div style={{ width: '33%', padding: '20px' }}>
+        <ProfileCardList />
+      </div>
+    </div>
   );
-}
-
+};
 export default App;
+

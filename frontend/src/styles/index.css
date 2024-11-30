@@ -1,3 +1,16 @@
+@font-face {
+  font-family: 'MTSCompact-Black';
+  src: url('../assets/fonts/MTSCompact-Black.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'MTSCompact-Medium';
+  src: url('../assets/fonts/MTSCompact-Medium.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
