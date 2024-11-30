@@ -40,6 +40,7 @@ func Migrate() {
             project_id INT REFERENCES projects(id),
             manager_id INT REFERENCES employees(id),
             city VARCHAR(100),
+            phone VARCHAR(20),
             email VARCHAR(100),
             calendar_link VARCHAR(200),
             CONSTRAINT fk_manager FOREIGN KEY(manager_id) REFERENCES employees(id) ON DELETE SET NULL

@@ -8,69 +8,55 @@ import (
 )
 
 func CreateEmployee(employee models.Employee) (int, error) {
-	query := `INSERT INTO employees (first_name, last_name, position, manager_id, department_id, role_id, project_id, city, email, calendar_link)
-              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id`
+	query := `INSERT INTO employees (first_name, last_name, position, manager_id, department_id, role_id, project_id, city, phone, email, calendar_link)
+              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING id`
 	var id int
-	err := config.DB.QueryRow(query, employee.FirstName, employee.LastName, employee.Position, employee.ManagerID, employee.DepartmentID, employee.RoleID, employee.ProjectID, employee.City, employee.Email, employee.CalendarLink).Scan(&id)
+	err := config.DB.QueryRow(query, employee.FirstName, employee.LastName, employee.Position, employee.ManagerID, employee.DepartmentID, employee.RoleID, employee.ProjectID, employee.City, employee.Phone, employee.Email, employee.CalendarLink).Scan(&id)
 	if err != nil {
 		return 0, fmt.Errorf("failed to create employee: %v", err)
 	}
 	return id, nil
 }
 
-func SearchEmployees(position, departmentID, roleID, projectID, city, email string) ([]models.Employee, error) {
-	// Начинаем с базового SQL-запроса
-	query := `SELECT id, first_name, last_name, position, manager_id, department_id, role_id, project_id, city, email, calendar_link 
-              FROM employees WHERE 1=1`
+func SearchEmployees(filterType, filterValue string) ([]models.Employee, error) {
+	var query string
 	var args []interface{}
-	var argCount int
+	argCount := 0
 
-	// Фильтр по должности (если задано)
-	if position != "" {
+	// Определяем SQL-запрос в зависимости от типа фильтра
+	switch filterType {
+	case "department":
+		query = `SELECT id FROM departments WHERE name = $1`
 		argCount++
-		query += fmt.Sprintf(" AND position = $%d", argCount)
-		args = append(args, position)
+		args = append(args, filterValue)
+	case "role":
+		query = `SELECT id FROM roles WHERE name = $1`
+		argCount++
+		args = append(args, filterValue)
+	case "project":
+		query = `SELECT id FROM projects WHERE name = $1`
+		argCount++
+		args = append(args, filterValue)
+	case "position", "city", "phone", "email":
+		// Простые фильтры без преобразования
+		query = fmt.Sprintf(`SELECT id, first_name, last_name, position, manager_id, department_id, role_id, project_id, city, phone, email, calendar_link
+                             FROM employees WHERE %s = $1`, filterType)
+		argCount++
+		args = append(args, filterValue)
+	case "name":
+		// Фильтр по имени (имя + фамилия)
+		query = `SELECT id, first_name, last_name, position, manager_id, department_id, role_id, project_id, city, phone, email, calendar_link
+                 FROM employees WHERE CONCAT(first_name, ' ', last_name) ILIKE $1`
+		argCount++
+		args = append(args, "%"+filterValue+"%")
+	default:
+		return nil, fmt.Errorf("unsupported filter type: %s", filterType)
 	}
 
-	// Фильтр по departmentID (если задано)
-	if departmentID != "" {
-		argCount++
-		query += fmt.Sprintf(" AND department_id = $%d", argCount)
-		args = append(args, departmentID)
-	}
-
-	// Фильтр по roleID (если задано)
-	if roleID != "" {
-		argCount++
-		query += fmt.Sprintf(" AND role_id = $%d", argCount)
-		args = append(args, roleID)
-	}
-
-	// Фильтр по projectID (если задано)
-	if projectID != "" {
-		argCount++
-		query += fmt.Sprintf(" AND project_id = $%d", argCount)
-		args = append(args, projectID)
-	}
-
-	// Фильтр по городу (если задано)
-	if city != "" {
-		argCount++
-		query += fmt.Sprintf(" AND city = $%d", argCount)
-		args = append(args, city)
-	}
-
-	// Фильтр по email (если задано)
-	if email != "" {
-		argCount++
-		query += fmt.Sprintf(" AND email = $%d", argCount)
-		args = append(args, email)
-	}
-
-	// Выполнение запроса с фильтрами
+	// Выполняем запрос
 	rows, err := config.DB.Query(query, args...)
 	if err != nil {
-		return nil, fmt.Errorf("failed to fetch employees: %v", err)
+		return nil, fmt.Errorf("failed to execute query: %v", err)
 	}
 	defer rows.Close()
 
@@ -79,7 +65,7 @@ func SearchEmployees(position, departmentID, roleID, projectID, city, email stri
 	for rows.Next() {
 		var employee models.Employee
 		err := rows.Scan(&employee.ID, &employee.FirstName, &employee.LastName, &employee.Position, &employee.ManagerID,
-			&employee.DepartmentID, &employee.RoleID, &employee.ProjectID, &employee.City, &employee.Email, &employee.CalendarLink)
+			&employee.DepartmentID, &employee.RoleID, &employee.ProjectID, &employee.City, &employee.Phone, &employee.Email, &employee.CalendarLink)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan employee: %v", err)
 		}
@@ -90,12 +76,12 @@ func SearchEmployees(position, departmentID, roleID, projectID, city, email stri
 }
 
 func GetEmployee(id int) (models.Employee, error) {
-	query := `SELECT id, first_name, last_name, position, manager_id, department_id, role_id, project_id, city, email, calendar_link 
+	query := `SELECT id, first_name, last_name, position, manager_id, department_id, role_id, project_id, city, phone, email, calendar_link
               FROM employees WHERE id = $1`
 	var employee models.Employee
 	err := config.DB.QueryRow(query, id).Scan(
 		&employee.ID, &employee.FirstName, &employee.LastName, &employee.Position, &employee.ManagerID,
-		&employee.DepartmentID, &employee.RoleID, &employee.ProjectID, &employee.City, &employee.Email, &employee.CalendarLink,
+		&employee.DepartmentID, &employee.RoleID, &employee.ProjectID, &employee.City, &employee.Phone, &employee.Email, &employee.CalendarLink,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -126,9 +112,9 @@ func GetEmployee(id int) (models.Employee, error) {
 func UpdateEmployee(employee models.Employee) error {
 	query := `UPDATE employees 
               SET first_name = $1, last_name = $2, position = $3, manager_id = $4, department_id = $5, 
-                  role_id = $6, project_id = $7, city = $8, email = $9
-              WHERE id = $10`
-	_, err := config.DB.Exec(query, employee.FirstName, employee.LastName, employee.Position, employee.ManagerID, employee.DepartmentID, employee.RoleID, employee.ProjectID, employee.City, employee.Email, employee.ID)
+                  role_id = $6, project_id = $7, city = $8, phone = $9, email = $10
+              WHERE id = $11`
+	_, err := config.DB.Exec(query, employee.FirstName, employee.LastName, employee.Position, employee.ManagerID, employee.DepartmentID, employee.RoleID, employee.ProjectID, employee.City, employee.Phone, employee.Email, employee.ID)
 	if err != nil {
 		return fmt.Errorf("failed to update employee: %v", err)
 	}
@@ -148,7 +134,7 @@ func DeleteEmployee(id int) error {
 func GetSubordinates(managerID int) ([]*models.Employee, error) {
 	// SQL-запрос для получения сотрудников с определенным manager_id
 	query := `SELECT id, first_name, last_name, position, manager_id, department_id, 
-                     role_id, project_id, city, email, calendar_link
+                     role_id, project_id, city, phone, email, calendar_link
               FROM employees WHERE manager_id = $1`
 
 	rows, err := config.DB.Query(query, managerID)
@@ -163,7 +149,7 @@ func GetSubordinates(managerID int) ([]*models.Employee, error) {
 		err := rows.Scan(&subordinate.ID, &subordinate.FirstName, &subordinate.LastName,
 			&subordinate.Position, &subordinate.ManagerID, &subordinate.DepartmentID,
 			&subordinate.RoleID, &subordinate.ProjectID, &subordinate.City,
-			&subordinate.Email, &subordinate.CalendarLink)
+			&subordinate.Phone, &subordinate.Email, &subordinate.CalendarLink)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan subordinate: %v", err)
 		}
