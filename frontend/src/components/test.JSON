@@ -1,0 +1,37 @@
+[
+    {
+      "id": 4,
+      "first_name": "John",
+      "last_name": "Doe",
+      "position": "Software Engineer",
+      "department_id": 1,
+      "department_name": "IT Department",
+      "role_id": 1,
+      "role_name": "Software Engineer",
+      "project_id": 1,
+      "project_name": "Project X",
+      "manager_id": null,
+      "city": "New York",
+      "phone": null,
+      "email": "johndoe@example.com",
+      "calendar_link": "https://calendar.example.com/johndoe"
+    },
+    {
+      "id": 7,
+      "first_name": "Bob",
+      "last_name": "Johnson",
+      "position": "Software Engineer",
+      "department_id": 1,
+      "department_name": "IT Department",
+      "role_id": 1,
+      "role_name": "Software Engineer",
+      "project_id": 1,
+      "project_name": "Project X",
+      "manager_id": 5,
+      "city": "Seattle",
+      "phone": null,
+      "email": "bob.johnson@example.com",
+      "calendar_link": "https://calendar.example.com/bob"
+    }
+  ]
+  
