@@ -145,7 +145,6 @@ func DeleteEmployee(id int) error {
 }
 
 // Функция для получения подчиненных сотрудника
-// Функция для получения подчиненных сотрудника
 func GetSubordinates(managerID int) ([]*models.Employee, error) {
 	// SQL-запрос для получения сотрудников с определенным manager_id
 	query := `SELECT id, first_name, last_name, position, manager_id, department_id, 
