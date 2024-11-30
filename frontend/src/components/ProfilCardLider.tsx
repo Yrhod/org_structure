@@ -21,6 +21,7 @@ const ProfileCardLider: React.FC<CardProps> = ({ photoUrl, fullName, position, c
         maxWidth: '400px',
         backgroundColor: '#fff',
         marginBottom: '20px',
+        marginLeft: '9px',
         transition: 'transform 0.3s ease, box-shadow 0.3s ease',
       }}
       onMouseEnter={(e) => {
@@ -41,7 +42,7 @@ const ProfileCardLider: React.FC<CardProps> = ({ photoUrl, fullName, position, c
           width: '50px',
           height: '50px',
           border: 'none', // Убираем границы у фиолетового квадрата
-          backgroundColor: 'rgb(121,67,229)', // Фиолетовый цвет
+          backgroundColor: 'rgb(237, 28, 36)', // Фиолетовый цвет
           borderTopRightRadius: '20px', // Скругление верхнего правого угла
         }}
       >
