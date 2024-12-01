@@ -1,21 +1,21 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
+	"fmt"
 	"org_structure_backend/config"
+	"org_structure_backend/routers"
+	"org_structure_backend/services"
 )
 
 func main() {
-	router := gin.Default()
-	config.ConnectDB()
-	router.Run(":8080")
 
-	// Пример маршрута
-	router.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
+	config.InitDB()
+	defer config.DB.Close()
+	services.Migrate()
 
-	router.Run(":8080")
+	router := routers.SetupRouter()
+
+	router.Run(":8081")
+
+	fmt.Println("Application started successfully!")
 }
