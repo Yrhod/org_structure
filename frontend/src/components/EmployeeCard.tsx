@@ -13,11 +13,10 @@ interface Employee {
   boss: {
     firstName: string;
     lastName: string;
-    
-  };
+  } | null; // Позволяем быть null
   city: string;
   email: string;
-  phoneNumber: string;  
+  phoneNumber: string | null; // Позволяем быть null
   calendarLink: string;
   photoUrl?: string;
 }
@@ -47,7 +46,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({ employee, onClose }) => {
   return (
     <Card sx={{
         width: '100%', // Занимает 100% ширины модального окна
-        maxWidth: '600px', // Максимальная ширина
+        maxWidth: '400px', // Максимальная ширина
         margin: '0',
         overflow: 'hidden', 
         padding: '20px'

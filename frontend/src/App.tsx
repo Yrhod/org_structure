@@ -187,15 +187,6 @@ const App: React.FC = () => {
             height: 'auto', // Адаптивная высота
           }}
         >
-                                                                
-          <Button                                                         //КНОПКА ДЛЯ КАРТОЧКИ СОТРУДНИКА
-            variant="contained"
-            color="primary"
-            onClick={handleOpenModal} 
-            style={{ alignSelf: 'center' }}
-          >
-            Пример карточки сотрудника
-          </Button>
           
           <DepartmentStructure departmentHierarchy={departmentData} />
           
