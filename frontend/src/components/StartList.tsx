@@ -1,96 +1,99 @@
-import React from 'react';
-import ProfileCardStart from './ProfileCardStart'; // Импортируем компонент карточки профиля
+import React, { useState } from 'react';
+import { Dialog, DialogContent } from '@mui/material';
+import ProfileCardStart from './ProfileCardStart';
+import EmployeeCard from './EmployeeCard'; // Импортируем компонент карточки сотрудника
 
-// Пример данных для карточек профиля на русском
+const employee = {
+  id: 101,
+  firstName: "Петр",
+  lastName: "Петров",
+  position: "Разработчик",
+  department: "Бэкенд",
+  role: "Бэкенд-разработчик",
+  project: "Сеть IT",
+  boss: {
+    firstName: "Иван",
+    lastName: "Иванов",
+  },
+  city: "Москва",
+  email: "petrov@example.com",
+  phoneNumber: "+7(999)-999-99-99",
+  calendarLink: "https://calendar.google.com/",
+  photoUrl: "https://via.placeholder.com/120",
+};
+
 const profileData = [
   {
+    id: 1,
     photoUrl: 'https://via.placeholder.com/150',
-    fullName: 'Иван Иванов',
+    fullName: 'Антонов Антон',
     position: 'Инженер-программист',
     company: 'ТехКорп',
   },
   {
+    id: 2,
     photoUrl: 'https://via.placeholder.com/150',
-    fullName: 'Мария Смирнова',
+    fullName: 'Борисов Борис',
     position: 'Менеджер продукта',
     company: 'Инновейт Инк.',
   },
   {
+    id: 3,
     photoUrl: 'https://via.placeholder.com/150',
-    fullName: 'Алиса Джонсон',
+    fullName: 'Валерий Джонсон',
     position: 'UX-дизайнер',
     company: 'Креативные Решения',
   },
   {
+    id: 4,
     photoUrl: 'https://via.placeholder.com/150',
-    fullName: 'Боб Браун',
-    position: 'Инженер DevOps',
-    company: 'БилдРайт',
+    fullName: 'Грач Геннадий',
+    position: 'Инженер-программист',
+    company: 'ТехКорп',
   },
-  {
-    photoUrl: 'https://via.placeholder.com/150',
-    fullName: 'Чарли Уилсон',
-    position: 'Маркетинговый специалист',
-    company: 'БрендИфи',
-  },
-  {
-    photoUrl: 'https://via.placeholder.com/150',
-    fullName: 'Диана Уайт',
-    position: 'Аналитик данных',
-    company: 'ДатаВоркс',
-  },
-  {
-    photoUrl: 'https://via.placeholder.com/150',
-    fullName: 'Этан Грин',
-    position: 'Тестировщик ПО',
-    company: 'КвалитиЧек',
-  },
-  {
-    photoUrl: 'https://via.placeholder.com/150',
-    fullName: 'Фиона Блю',
-    position: 'HR-менеджер',
-    company: 'ПиплФёрст',
-  },
-  {
-    photoUrl: 'https://via.placeholder.com/150',
-    fullName: 'Джордж Ред',
-    position: 'Торговый представитель',
-    company: 'СеллСмарт',
-  },
-  {
-    photoUrl: 'https://via.placeholder.com/150',
-    fullName: 'Ханна Блэк',
-    position: 'Контент-менеджер',
-    company: 'РайтПро',
-  },
-  {
-    photoUrl: 'https://via.placeholder.com/150',
-    fullName: 'Иэн Сильвер',
-    position: 'Специалист по кибербезопасности',
-    company: 'СекьюрНет',
-  },
-  {
-    photoUrl: 'https://via.placeholder.com/150',
-    fullName: 'Джулия Голд',
-    position: 'Исследователь ИИ',
-    company: 'ФьючерТех',
-  },
+
 ];
 
 const StartList: React.FC = () => {
+  const [openModal, setOpenModal] = useState(false);
+  const [position, setPosition] = useState({ x: 20, y: 130 });
+  const [dragging, setDragging] = useState(false);
+  const [startPosition, setStartPosition] = useState({ x: 0, y: 0 });
+
+  const handleOpenModal = () => {
+    setOpenModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setOpenModal(false);
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setDragging(true);
+    setStartPosition({ x: e.clientX, y: e.clientY });
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (dragging) {
+      const dx = e.clientX - startPosition.x;
+      const dy = e.clientY - startPosition.y;
+      setPosition({ x: position.x + dx, y: position.y + dy });
+      setStartPosition({ x: e.clientX, y: e.clientY });
+    }
+  };
+
+  const handleMouseUp = () => {
+    setDragging(false);
+  };
+
   return (
-    <div
-      style={{
-        maxHeight: '600px', // Максимальная высота для списка
-        overflowY: 'auto',  // Включаем вертикальную прокрутку
-        padding: '10px 0', // Паддинг для внутреннего отступа
-        scrollbarWidth: 'none', // Для Firefox
-        msOverflowStyle: 'none', // Для Internet Explorer
-      }}
-    >
-      {/* Список карточек профилей */}
-      {profileData.map((profile, index) => (
-        <div key={index} style={{ padding: '0 10px' }}>
+    <div>
+      {profileData.map((profile) => (
+        <div
+          key={profile.id}
+          style={{ padding: '10px', cursor: 'pointer' }}
+          onClick={handleOpenModal}
+        >
           <ProfileCardStart
             photoUrl={profile.photoUrl}
             fullName={profile.fullName}
@@ -99,6 +102,31 @@ const StartList: React.FC = () => {
           />
         </div>
       ))}
+
+      <Dialog
+        open={openModal}
+        onClose={handleCloseModal}
+        BackdropProps={{ invisible: true }}
+        PaperProps={{
+          style: {
+            position: 'absolute',
+            top: `${position.y}px`,
+            left: `${position.x}px`,
+            cursor: 'move',
+            width: '420px',
+            maxWidth: '100%',
+            borderRadius: '16px',
+            boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.2)',
+          },
+        }}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseDown={handleMouseDown}
+      >
+        <DialogContent>
+          <EmployeeCard employee={employee} onClose={handleCloseModal} />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -13,12 +13,12 @@ interface Employee {
   boss: {
     firstName: string;
     lastName: string;
-  };
+  } | null; // Позволяем быть null
   city: string;
   email: string;
-  phoneNumber: string;
+  phoneNumber: string | null; // Позволяем быть null
   calendarLink: string;
-  photoUrl: string;
+  photoUrl?: string;
 }
 
 const SearchBar: React.FC = () => {
